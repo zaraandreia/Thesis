@@ -145,9 +145,8 @@ stargazer(as.data.frame(dt %>% select(GDP,PRIV_CONS,INVEST,EXPORT)), type = "tex
 #########################################################################################
 ########### GDP ########### 
 y_gdp <- dt[,2] # Response variable: GDP
-y_gdp <- ts(y_gdp)
 #Hodrick-Prescott filter model
-result <- cv.hp(y_gdp, lambda = 1600,32)
+result <- cv.hp(y_gdp, lambda = 1600,k=32)
 filtered_series <- result$filtered_series
 
 print("MEAN ABSOLUTE ERROR")
@@ -203,7 +202,7 @@ print(RMSE)
 y_priv_cons <- dt[,3]     # Response variable: PRIV CONS
 
 #Hodrick-Prescott filter
-result <- hpfilt(y_priv_cons, lambda = 1600)
+result <- cv.hp(y_priv_cons, lambda = 1600,k=32)
 filtered_series <- result$filtered_series
 
 print("MEAN ABSOLUTE ERROR")
@@ -259,7 +258,7 @@ print(RMSE)
 y_inv<- dt[,4]     # Response variable: INVEST
 
 #Hodrick-Prescott filter
-result <- hpfilt(y_inv, lambda = 1600)
+result <- cv.hp(y_inv, lambda = 1600,k=32)
 filtered_series <- result$filtered_series
 
 print("MEAN ABSOLUTE ERROR")
@@ -314,7 +313,7 @@ print(RMSE)
 y_exp<- dt[,5]     # Response variable: EXPORT
 
 #Hodrick-Prescott filter
-result <- hpfilt(y_exp, lambda = 1600)
+result <- cv.hp(y_exp, lambda = 1600,k=32)
 filtered_series <- result$filtered_series
 
 print("MEAN ABSOLUTE ERROR")
