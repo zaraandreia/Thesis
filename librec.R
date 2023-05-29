@@ -21,18 +21,7 @@ hpfilt <- function(y, lambda = 1600){
   D2 <- crossprod(D)
   A <- solve( diag(n) + lambda * D2 )
   x <- A %*% y
-  filtered_series <- ts(data = x, start = 1, end = n)
-  # Calculate error
-  error <- y - x
-  # Calculate Mean Absolute Error (MAE)
-  mae <- sum(abs(error)) / n
-  # Calculate Mean Squared Error (MSE)
-  mse <- sum((error)^2) / n
-  # Calculate Root Mean Squared Error (RMSE)
-  rmse <- sqrt(mse)
-  # Return filtered series, MAE, MSE and RMSE as a list
-  out <- list(filtered_series = filtered_series, MAE = mae, MSE = mse, RMSE = rmse)
-  return(out)
+  out <- ts(data = x, start = 1, end = n)
 }
 
 
@@ -275,27 +264,23 @@ cv.GTD2 <- function(y,p=1,w=0,beta=0.96,c=0.00001,k=5){
   list("prediction" = pred_aux, "MAE" = mae_aux, "MSE" = mse_aux, "cost" = d_aux)
 }
 
-
-# cv.hp(y, lambda, k)
-# Simple k-fold cross validation for an univariate time series model with the trend computed by the HP filter.
-# Returns a list with k OOS predictions and the associated errors (MAE and MSE) and AIC (Greene approach).
 cv.hp <- function(y, lambda=1600, k=4){
-    n <- length(y)
-    m <- n - k
-    y <- as.matrix(y)
-    pred  <- rep(0,k)
-    error <- rep(0,k)
-    for (i in 1:k){
-        ytrain <- y[i:(m+i-1),1]
-        trend <- hpfilt(ytrain, lambda)
-        pred[i] <- y[m+i-1] + tail(trend$filtered_series, 1) - tail(trend$filtered_series, 2)
-        
-        error[i] <- y[m+i] - pred[i]
-    }
+  n <- length(y)
+  m <- n - k
+  y <- as.matrix(y)
+  pred  <- rep(0,k)
+  error <- rep(0,k)
+  for (i in 1:k){
+    ytrain <- y[i:(m+i-1),1]
+    trend <- hpfilt(ytrain, lambda)
+    pred[i]  <- y[m+i-1] + trend[m] - trend[m-1]
+    error[i] <- y[m+i] - pred[i]
+  }
   mae <- sum(abs(error))/k
   mse <- sum(error*error)/k
+  rmse <- sqrt(mse)
   aic <- log(sum(error*error)/k) + 2/k
-  list("prediction" = pred, "MAE" = mae, "MSE" = mse, "AIC" = aic)
+  list("prediction" = pred, "MAE" = mae, "MSE" = mse, "RMSE" = rmse, "AIC" = aic)
 }
 
 
